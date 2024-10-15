@@ -1,101 +1,67 @@
+# Flask MySQL Application with Kubernetes
 
-```md
-# Application Flask avec MySQL et Kubernetes
+This project is a simple Flask application that retrieves random advice from a MySQL database. The application and the MySQL database are deployed using Kubernetes in separate containers.
 
-Ce projet est une application Flask simple qui récupère des conseils aléatoires depuis une base de données MySQL. L'application et la base de données MySQL sont déployées sur Kubernetes dans des conteneurs séparés.
+## Prerequisites
 
-## Prérequis
+Before starting, make sure you have the following tools installed:
 
-Avant de commencer, assurez-vous d'avoir les outils suivants installés :
+1. **Docker**: You will use Docker to build images for the Flask app and MySQL database.
+2. **Minikube**: A local Kubernetes cluster to test the application.
+3. **Kubectl**: A command-line tool to interact with the Kubernetes cluster.
+4. **Git**: To clone the repository.
 
-1. **Docker**
-2. **Minikube**
-3. **Kubectl**
-4. **Git**
+## Project Structure
 
-## Installation
+Here is the structure of the project:
 
-<details>
-  <summary><strong>Installation sous Linux</strong></summary>
+```
+├── flask-app/                   # Flask application
+│   ├── Dockerfile               # Dockerfile to build the Flask app
+│   ├── app.py                   # Main Flask application code
+│   ├── requirements.txt         # Flask dependencies
+│   ├── templates/               # HTML templates
+│   │   ├── index.html
+│   │   └── conseil.html
+├── kubernetes/
+│   ├── mysql-deployment.yaml    # MySQL Kubernetes deployment
+│   ├── flask-deployment.yaml    # Flask Kubernetes deployment
+│   ├── mysql-initdb-config.yaml # ConfigMap for MySQL initialization (init.sql)
+└── README.md                    # This README file
+```
 
-### Étape 1 : Cloner le dépôt
+## Installation and Setup
+
+Follow these steps to set up the project and get it running in your local Kubernetes cluster using Minikube.
+
+### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/votre-utilisateur/flask-mysql-kubernetes.git
+git clone https://github.com/your-username/flask-mysql-kubernetes.git
 cd flask-mysql-kubernetes
 ```
 
-### Étape 2 : Démarrer Minikube
+### Step 2: Start Minikube
+
+Make sure Minikube is installed and running.
 
 ```bash
 minikube start
 ```
 
-### Étape 3 : Configurer Docker pour Minikube
+Configure Docker to use Minikube’s environment:
 
 ```bash
 eval $(minikube -p minikube docker-env)
 ```
 
-### Étape 4 : Construire et déployer les images
+### Step 3: Build Docker Images
 
-#### Construire l'image Flask :
+You need to build the Docker images for both the Flask application and the MySQL database.
 
-```bash
-cd flask-app
-docker build -t flask-app-image .
-cd ..
-```
+#### Build the Flask application image
 
-#### Appliquer le ConfigMap et les déploiements MySQL et Flask
-
-```bash
-kubectl apply -f kubernetes/mysql-initdb-config.yaml
-kubectl apply -f kubernetes/mysql-deployment.yaml
-kubectl apply -f kubernetes/flask-deployment.yaml
-```
-
-### Étape 5 : Accéder à l'application
-
-Exposez le service Flask :
-
-```bash
-minikube service flask-service --url
-```
-
-Cela fournira une URL comme `http://192.168.99.100:5000`. Ouvrez cette URL dans votre navigateur pour accéder à l'application.
-
-</details>
-
-<details>
-  <summary><strong>Installation sous Windows</strong></summary>
-
-### Étape 1 : Cloner le dépôt
-
-Ouvrez **PowerShell** et exécutez :
-
-```bash
-git clone https://github.com/votre-utilisateur/flask-mysql-kubernetes.git
-cd flask-mysql-kubernetes
-```
-
-### Étape 2 : Démarrer Minikube
-
-```bash
-minikube start
-```
-
-### Étape 3 : Configurer Docker pour Minikube
-
-Dans **PowerShell**, configurez Docker pour utiliser l'environnement de Minikube :
-
-```bash
-minikube docker-env | Invoke-Expression
-```
-
-### Étape 4 : Construire et déployer les images
-
-#### Construire l'image Flask :
+Navigate to the `flask-app/` directory and build the Docker image:
 
 ```bash
 cd flask-app
@@ -103,31 +69,84 @@ docker build -t flask-app-image .
 cd ..
 ```
 
-#### Appliquer le ConfigMap et les déploiements MySQL et Flask
+#### Build the MySQL image (if necessary)
+
+Since we are using the official MySQL image, there’s no need to build a custom MySQL image. However, you can modify the image version in the deployment file if needed.
+
+### Step 4: Deploy MySQL and Flask to Kubernetes
+
+#### Apply the ConfigMap for MySQL initialization
+
+The ConfigMap contains the SQL script to create the database and populate the table with advice.
 
 ```bash
 kubectl apply -f kubernetes/mysql-initdb-config.yaml
+```
+
+#### Deploy MySQL
+
+Apply the MySQL deployment to Kubernetes:
+
+```bash
 kubectl apply -f kubernetes/mysql-deployment.yaml
+```
+
+Wait for the MySQL pod to be in the `Running` state:
+
+```bash
+kubectl get pods
+```
+
+#### Deploy Flask
+
+Now, deploy the Flask application to Kubernetes:
+
+```bash
 kubectl apply -f kubernetes/flask-deployment.yaml
 ```
 
-### Étape 5 : Accéder à l'application
+Check if the Flask pod is running:
 
-Exposez le service Flask :
+```bash
+kubectl get pods
+```
+
+### Step 5: Access the Application
+
+Once both MySQL and Flask are deployed and running, you can access the Flask application through Minikube.
+
+Expose the Flask service to access it from your browser:
 
 ```bash
 minikube service flask-service --url
 ```
 
-Cela fournira une URL comme `http://192.168.99.100:5000`. Ouvrez cette URL dans votre navigateur pour accéder à l'application.
+This will provide a URL (e.g., `http://192.168.99.100:5000`). Open this URL in your browser to access the application.
 
-</details>
+### Step 6: Test the Application
 
----
+- The home page (`/`) should display a simple welcome page.
+- The `/conseil` route will fetch a random advice from the MySQL database.
 
-## Nettoyage
+### Troubleshooting
 
-Pour arrêter et supprimer toutes les ressources créées par ce projet, exécutez les commandes suivantes :
+If you encounter any issues, you can check the logs of the Flask and MySQL pods:
+
+- **Check Flask logs**:
+
+  ```bash
+  kubectl logs <flask-pod-name>
+  ```
+
+- **Check MySQL logs**:
+
+  ```bash
+  kubectl logs <mysql-pod-name>
+  ```
+
+### Clean Up
+
+To stop and remove all resources created by this project, run the following command:
 
 ```bash
 kubectl delete -f kubernetes/mysql-deployment.yaml
@@ -135,41 +154,27 @@ kubectl delete -f kubernetes/flask-deployment.yaml
 kubectl delete -f kubernetes/mysql-initdb-config.yaml
 ```
 
-Vous pouvez également arrêter Minikube :
+You can also stop Minikube:
 
 ```bash
 minikube stop
 ```
 
-## Détails du projet
+## Project Details
 
-### Technologies utilisées :
+### Technologies Used:
 
-- **Flask** : Framework web utilisé pour créer l'application.
-- **MySQL** : Base de données pour stocker les conseils.
-- **Kubernetes** : Orchestration du déploiement de Flask et MySQL dans des conteneurs séparés.
-- **Docker** : Utilisé pour containeriser l'application Flask.
+- **Flask**: Web framework used to create the application.
+- **MySQL**: Database used to store advice.
+- **Kubernetes**: Orchestrates the deployment of both Flask and MySQL in separate containers.
+- **Docker**: Used to containerize the Flask application.
 
-### Fonctionnalités principales :
+### Key Features:
 
-- L'application Flask récupère des conseils aléatoires depuis une base de données MySQL.
-- Flask et MySQL s'exécutent dans des pods Kubernetes séparés.
-- Initialisation automatique de la base de données avec un script SQL via ConfigMap.
+- Flask application retrieves random advice from a MySQL database.
+- Both Flask and MySQL run in separate Kubernetes pods.
+- Automatic database initialization using an SQL script via Kubernetes ConfigMap.
 
 ---
 
-## Dépannage
-
-Si vous rencontrez des problèmes, vous pouvez vérifier les journaux des pods Flask et MySQL :
-
-- **Voir les logs de Flask** :
-
-  ```bash
-  kubectl logs <nom-du-pod-flask>
-  ```
-
-- **Voir les logs de MySQL** :
-
-  ```bash
-  kubectl logs <nom-du-pod-mysql>
-  ```
+Feel free to modify and adapt this README based on your project's specific needs!
