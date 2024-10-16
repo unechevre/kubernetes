@@ -1,67 +1,67 @@
-# Flask MySQL Application with Kubernetes
+## Application Flask avec MySQL et Kubernetes
 
-This project is a simple Flask application that retrieves random advice from a MySQL database. The application and the MySQL database are deployed using Kubernetes in separate containers.
+Ce projet est une simple application Flask qui récupère des conseils aléatoires à partir d'une base de données MySQL. L'application et la base de données MySQL sont déployées à l'aide de Kubernetes dans des conteneurs séparés.
 
-## Prerequisites
+### Prérequis
 
-Before starting, make sure you have the following tools installed:
+Avant de commencer, assurez-vous d'avoir les outils suivants installés :
 
-1. **Docker**: You will use Docker to build images for the Flask app and MySQL database.
-2. **Minikube**: A local Kubernetes cluster to test the application.
-3. **Kubectl**: A command-line tool to interact with the Kubernetes cluster.
-4. **Git**: To clone the repository.
+- **Docker** : Pour construire les images de l'application Flask et de la base de données MySQL.
+- **Minikube** : Un cluster Kubernetes local pour tester l'application.
+- **Kubectl** : Un outil en ligne de commande pour interagir avec le cluster Kubernetes.
+- **Git** : Pour cloner le dépôt du projet.
 
-## Project Structure
+### Structure du Projet
 
-Here is the structure of the project:
+Voici la structure du projet :
 
-```
-├── flask-app/                   # Flask application
-│   ├── Dockerfile               # Dockerfile to build the Flask app
-│   ├── app.py                   # Main Flask application code
-│   ├── requirements.txt         # Flask dependencies
-│   ├── templates/               # HTML templates
+```bash
+Copier le code
+├── flask-app/                   # Application Flask
+│   ├── Dockerfile               # Dockerfile pour construire l'application Flask
+│   ├── app.py                   # Code principal de l'application Flask
+│   ├── requirements.txt         # Dépendances Flask
+│   ├── templates/               # Templates HTML
 │   │   ├── index.html
 │   │   └── conseil.html
 ├── kubernetes/
-│   ├── mysql-deployment.yaml    # MySQL Kubernetes deployment
-│   ├── flask-deployment.yaml    # Flask Kubernetes deployment
-│   ├── mysql-initdb-config.yaml # ConfigMap for MySQL initialization (init.sql)
-└── README.md                    # This README file
+│   ├── mysql-deployment.yaml    # Déploiement Kubernetes pour MySQL
+│   ├── flask-deployment.yaml    # Déploiement Kubernetes pour Flask
+│   ├── mysql-initdb-config.yaml # ConfigMap pour l'initialisation de MySQL (init.sql)
+└── README.md                    # Ce fichier README
 ```
 
-## Installation and Setup
+### Installation et Configuration
 
-Follow these steps to set up the project and get it running in your local Kubernetes cluster using Minikube.
+Suivez ces étapes pour configurer le projet et l'exécuter dans votre cluster Kubernetes local avec Minikube.
 
-### Step 1: Clone the Repository
+#### Étape 1 : Cloner le dépôt
 
 ```bash
 git clone https://github.com/your-username/flask-mysql-kubernetes.git
 cd flask-mysql-kubernetes
 ```
 
-### Step 2: Start Minikube
+#### Étape 2 : Démarrer Minikube
 
-Make sure Minikube is installed and running.
+Assurez-vous que Minikube est installé et en cours d'exécution.
 
 ```bash
 minikube start
 ```
 
-Configure Docker to use Minikube’s environment:
+Configurez Docker pour utiliser l'environnement de Minikube :
 
 ```bash
-eval $(minikube -p minikube docker-env)
+minikube docker-env | Invoke-Expression
 ```
 
-### Step 3: Build Docker Images
+#### Étape 3 : Construire les images Docker
 
-You need to build the Docker images for both the Flask application and the MySQL database.
+Vous devez construire les images Docker pour l'application Flask et la base de données MySQL.
 
-#### Build the Flask application image
-
-Navigate to the `flask-app/` directory and build the Docker image:
+Construire l'image de l'application Flask
+Allez dans le répertoire flask-app/ et construisez l'image Docker :
 
 ```bash
 cd flask-app
@@ -69,84 +69,57 @@ docker build -t flask-app-image .
 cd ..
 ```
 
-#### Build the MySQL image (if necessary)
+Construire l'image MySQL (si nécessaire)
+Comme nous utilisons l'image officielle de MySQL, il n'est pas nécessaire de construire une image MySQL personnalisée. Cependant, vous pouvez modifier la version de l'image dans le fichier de déploiement si nécessaire.
 
-Since we are using the official MySQL image, there’s no need to build a custom MySQL image. However, you can modify the image version in the deployment file if needed.
+#### Étape 4 : Déployer MySQL et Flask sur Kubernetes
 
-### Step 4: Deploy MySQL and Flask to Kubernetes
-
-#### Apply the ConfigMap for MySQL initialization
-
-The ConfigMap contains the SQL script to create the database and populate the table with advice.
+Appliquez tous les fichiers YAML à Kubernetes avec la commande suivante :
 
 ```bash
-kubectl apply -f kubernetes/mysql-initdb-config.yaml
+kubectl apply -f kubernetes/
 ```
 
-#### Deploy MySQL
-
-Apply the MySQL deployment to Kubernetes:
-
-```bash
-kubectl apply -f kubernetes/mysql-deployment.yaml
-```
-
-Wait for the MySQL pod to be in the `Running` state:
+Vérifiez si les pods sont en cours d'exécution :
 
 ```bash
 kubectl get pods
 ```
 
-#### Deploy Flask
+#### Étape 5 : Accéder à l'Application
 
-Now, deploy the Flask application to Kubernetes:
+Une fois MySQL et Flask déployés et en cours d'exécution, vous pouvez accéder à l'application Flask via Minikube.
 
-```bash
-kubectl apply -f kubernetes/flask-deployment.yaml
-```
-
-Check if the Flask pod is running:
-
-```bash
-kubectl get pods
-```
-
-### Step 5: Access the Application
-
-Once both MySQL and Flask are deployed and running, you can access the Flask application through Minikube.
-
-Expose the Flask service to access it from your browser:
+Exposez le service Flask pour y accéder depuis votre navigateur :
 
 ```bash
 minikube service flask-service --url
 ```
 
-This will provide a URL (e.g., `http://192.168.99.100:5000`). Open this URL in your browser to access the application.
+Cela fournira une URL (par exemple, http://127.0.0.1:5000). Ouvrez cette URL dans votre navigateur pour accéder à l'application.
 
-### Step 6: Test the Application
+#### Étape 6 : Tester l'Application
 
-- The home page (`/`) should display a simple welcome page.
-- The `/conseil` route will fetch a random advice from the MySQL database.
+La page d'accueil (/) doit afficher une simple page d'accueil.
+La route /conseil récupère un conseil aléatoire depuis la base de données MySQL.
+Dépannage
+Si vous rencontrez des problèmes, vous pouvez consulter les journaux des pods Flask et MySQL :
 
-### Troubleshooting
+Consulter les journaux de Flask :
 
-If you encounter any issues, you can check the logs of the Flask and MySQL pods:
+```bash
+kubectl logs <flask-pod-name>
+```
 
-- **Check Flask logs**:
+Consulter les journaux de MySQL :
 
-  ```bash
-  kubectl logs <flask-pod-name>
-  ```
+```bash
+kubectl logs <mysql-pod-name>
+```
 
-- **Check MySQL logs**:
+#### Nettoyage
 
-  ```bash
-  kubectl logs <mysql-pod-name>
-  ```
-
-### Clean Up
-
-To stop and remove all resources created by this project, run the following command:
+Pour arrêter et supprimer toutes les ressources créées par ce projet, exécutez les commandes suivantes :
 
 ```bash
 kubectl delete -f kubernetes/mysql-deployment.yaml
@@ -154,27 +127,23 @@ kubectl delete -f kubernetes/flask-deployment.yaml
 kubectl delete -f kubernetes/mysql-initdb-config.yaml
 ```
 
-You can also stop Minikube:
+Vous pouvez également arrêter Minikube :
 
 ```bash
 minikube stop
 ```
 
-## Project Details
+### Détails du Projet
 
-### Technologies Used:
+Technologies Utilisées :
 
-- **Flask**: Web framework used to create the application.
-- **MySQL**: Database used to store advice.
-- **Kubernetes**: Orchestrates the deployment of both Flask and MySQL in separate containers.
-- **Docker**: Used to containerize the Flask application.
+- **Flask** : Framework web utilisé pour créer l'application.
+- **MySQL** : Base de données pour stocker les conseils.
+- **Kubernetes** : Orchestration du déploiement de Flask et MySQL dans des conteneurs séparés.
+- **Docker** : Utilisé pour containeriser l'application Flask.
 
-### Key Features:
+#### Fonctionnalités Clés :
 
-- Flask application retrieves random advice from a MySQL database.
-- Both Flask and MySQL run in separate Kubernetes pods.
-- Automatic database initialization using an SQL script via Kubernetes ConfigMap.
-
----
-
-Feel free to modify and adapt this README based on your project's specific needs!
+L'application Flask récupère des conseils aléatoires depuis une base de données MySQL.
+Flask et MySQL fonctionnent dans des pods Kubernetes séparés.
+Initialisation automatique de la base de données via un script SQL grâce à ConfigMap de Kubernetes.
