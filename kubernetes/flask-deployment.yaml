@@ -21,3 +21,10 @@ spec:
           env:
             - name: SQLALCHEMY_DATABASE_URI
               value: mysql+pymysql://root:example@mysql-service:3306/advices
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "200Mi"
+            limits:
+              cpu: "350m"
+              memory: "500Mi"

@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  flask-app:
+    image: flask-app-image
+    build:
+      context: ./flask-app
+    ports:
+      - "30001:5000" # Expose le service sur le port 30001 de l'hôte
+    environment:
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://root:example@mysql:3306/advices
+    depends_on:
+      - mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: 500M
+        reservations:
+          cpus: "0.2"
+          memory: 200M
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=example
+      - MYSQL_DATABASE=advices
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-db:/docker-entrypoint-initdb.d
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: 500M
+        reservations:
+          cpus: "0.2"
+          memory: 200M
+
+volumes:
+  mysql-data:

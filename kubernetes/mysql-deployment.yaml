@@ -25,6 +25,13 @@ spec:
           volumeMounts:
             - name: mysql-initdb
               mountPath: /docker-entrypoint-initdb.d # Montre init.sql ici
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "200Mi"
+            limits:
+              cpu: "350m"
+              memory: "500Mi"
       volumes:
         - name: mysql-initdb
           configMap:

@@ -1,6 +1,31 @@
-## Application Flask avec MySQL et Kubernetes
+Marchal Enzo
+Voituret Tom
 
-Ce projet est une simple application Flask qui récupère des conseils aléatoires à partir d'une base de données MySQL. L'application et la base de données MySQL sont déployées à l'aide de Kubernetes dans des conteneurs séparés.
+# TP INFO910
+
+Ce projet est une simple application Flask qui récupère des conseils aléatoires à partir d'une base de données MySQL.
+Le projet est fait pour être lancé soit avec docker-compose, soit avec Kubernetes.
+
+### Première étape : Cloner le dépôt
+
+```bash
+git clone https://github.com/your-username/flask-mysql-kubernetes.git
+cd flask-mysql-kubernetes
+```
+
+## Docker-compose
+
+### Comment lancer l'application ?
+
+L'application se lance via la commande :
+`docker-compose up`.
+
+L'application est ensuite accessible à l'adresse : http://localhost:30001
+
+pour supprimer les dockers :
+`docker-compose down`.
+
+## Lancement avec Kubernetes
 
 ### Prérequis
 
@@ -35,14 +60,7 @@ Copier le code
 
 Suivez ces étapes pour configurer le projet et l'exécuter dans votre cluster Kubernetes local avec Minikube.
 
-#### Étape 1 : Cloner le dépôt
-
-```bash
-git clone https://github.com/your-username/flask-mysql-kubernetes.git
-cd flask-mysql-kubernetes
-```
-
-#### Étape 2 : Démarrer Minikube
+#### Étape 1 : Démarrer Minikube
 
 Assurez-vous que Minikube est installé et en cours d'exécution.
 
@@ -56,7 +74,7 @@ Configurez Docker pour utiliser l'environnement de Minikube :
 minikube docker-env | Invoke-Expression
 ```
 
-#### Étape 3 : Construire les images Docker
+#### Étape 2 : Construire les images Docker
 
 Vous devez construire les images Docker pour l'application Flask et la base de données MySQL.
 
@@ -72,7 +90,7 @@ cd ..
 Construire l'image MySQL (si nécessaire)
 Comme nous utilisons l'image officielle de MySQL, il n'est pas nécessaire de construire une image MySQL personnalisée. Cependant, vous pouvez modifier la version de l'image dans le fichier de déploiement si nécessaire.
 
-#### Étape 4 : Déployer MySQL et Flask sur Kubernetes
+#### Étape 3 : Déployer MySQL et Flask sur Kubernetes
 
 Appliquez tous les fichiers YAML à Kubernetes avec la commande suivante :
 
@@ -86,7 +104,7 @@ Vérifiez si les pods sont en cours d'exécution :
 kubectl get pods
 ```
 
-#### Étape 5 : Accéder à l'Application
+#### Étape 4 : Accéder à l'Application
 
 Une fois MySQL et Flask déployés et en cours d'exécution, vous pouvez accéder à l'application Flask via Minikube.
 
@@ -98,7 +116,7 @@ minikube service flask-service --url
 
 Cela fournira une URL (par exemple, http://127.0.0.1:5000). Ouvrez cette URL dans votre navigateur pour accéder à l'application.
 
-#### Étape 6 : Tester l'Application
+#### Étape 5 : Tester l'Application
 
 La page d'accueil (/) doit afficher une simple page d'accueil.
 La route /conseil récupère un conseil aléatoire depuis la base de données MySQL.
